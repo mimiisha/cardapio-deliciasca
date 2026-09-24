@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --color-creme: #fbf4e8;
+  --color-papel: #fffcf6;
+  --color-manteiga: #fdebc0;
+  --color-mostarda: #f7c548;
+  --color-mostarda-escuro: #eea92a;
+  --color-tomate: #d2452b;
+  --color-tomate-escuro: #a3301b;
+  --color-tinta: #2b1d16;
+  --color-tinta-suave: #6b4f3f;
+  --color-borda: #ecdcc0;
+
+  --font-display: "Young Serif", ui-serif, Georgia, serif;
+  --font-sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, sans-serif;
+}
+
+@utility bg-bolinhas {
+  background-image: radial-gradient(circle, rgb(255 252 246 / 0.22) 1.5px, transparent 1.75px);
+  background-size: 18px 18px;
+}
+
+@media (width < 64rem) {
+  html:has(#conteudo-admin) {
+    scroll-padding-top: 6rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

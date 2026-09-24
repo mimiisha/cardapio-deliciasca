@@ -1,0 +1,278 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function ehDono(uid) {
+      return autenticado() && request.auth.uid == uid;
+    }
+
+    function ehAdmin() {
+      return autenticado()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email is string
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.get('email', '') == request.auth.token.email;
+    }
+
+    function semInvisiveis(s) {
+      return s.matches('(?:[^\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}\\x{00AD}\\x{061C}\\x{180E}\\x{200B}\\x{200C}\\x{200E}\\x{200F}\\x{202A}-\\x{202E}\\x{2060}-\\x{2064}\\x{2066}-\\x{206F}\\x{FEFF}\\x{FFF9}-\\x{FFFB}]|\\x{200D})*');
+    }
+
+    function nomeValido(nome) {
+      return nome is string
+        && nome == nome.trim()
+        && nome.size() >= 2
+        && nome.size() <= 100
+        && semInvisiveis(nome);
+    }
+
+    function whatsappValido(numero) {
+      return numero is string
+        && numero.size() <= 20
+        && numero.matches('^[+]55[1-9][0-9]{9,10}$');
+    }
+
+    function caminhoCliente(uid) {
+      return /databases/$(database)/documents/clientes/$(uid);
+    }
+
+    function nomeCategoriaValido(n) {
+      return n is string
+        && n == n.trim()
+        && n.size() >= 2
+        && n.size() <= 40
+        && n.matches('[^[:cntrl:]]+');
+    }
+
+    function iconeCategoriaValido(c) {
+      return c is string
+        && c in ['marmita', 'massa', 'feijoada', 'frango', 'peixe', 'churrasco', 'sopa', 'salada', 'fit', 'vegetariano', 'lanche', 'pizza', 'torta', 'pao', 'bolo', 'sobremesa', 'doce', 'bebida', 'cafe', 'junino', 'kit', 'congelado', 'prato'];
+    }
+
+    function categoriaValida(d) {
+      return d.keys().hasOnly(['nome', 'icone', 'ordem', 'ativa', 'criadoEm', 'atualizadoEm'])
+        && d.keys().hasAll(['nome', 'icone', 'ordem', 'ativa', 'criadoEm', 'atualizadoEm'])
+        && nomeCategoriaValido(d.nome)
+        && iconeCategoriaValido(d.icone)
+        && d.ordem is int
+        && d.ordem >= 0
+        && d.ordem <= 9999
+        && d.ativa is bool;
+    }
+
+    function nomeSeloValido(n) {
+      return n is string
+        && n == n.trim()
+        && n.size() >= 2
+        && n.size() <= 30
+        && n.matches('[^[:cntrl:]]+');
+    }
+
+    function iconeSeloValido(c) {
+      return c is string
+        && c in ['peixe', 'carne-vermelha', 'frango', 'fruta', 'cereais', 'lacteo', 'massa', 'vegetariano', 'congelado', 'conserva', 'queijo', 'gluten', 'vegano', 'sem-gluten', 'sem-lactose', 'sem-acucar', 'integral', 'leve', 'proteico', 'picante', 'caseiro', 'novidade', 'mais-pedido', 'favorito', 'pode-congelar', 'pronto-aquecer', 'preparo-rapido', 'porcao-individual', 'serve-dois', 'familia', 'sob-encomenda', 'selo'];
+    }
+
+    function seloValido(d) {
+      return d.keys().hasOnly(['nome', 'icone', 'ordem', 'ativo', 'criadoEm', 'atualizadoEm'])
+        && d.keys().hasAll(['nome', 'icone', 'ordem', 'ativo', 'criadoEm', 'atualizadoEm'])
+        && nomeSeloValido(d.nome)
+        && iconeSeloValido(d.icone)
+        && d.ordem is int
+        && d.ordem >= 0
+        && d.ordem <= 9999
+        && d.ativo is bool;
+    }
+
+    function idRefValido(i) {
+      return i is string
+        && i.matches('^[A-Za-z0-9_-]{1,40}$');
+    }
+
+    function nomeProdutoValido(n) {
+      return n is string
+        && n == n.trim()
+        && n.size() >= 2
+        && n.size() <= 60
+        && semInvisiveis(n);
+    }
+
+    function descricaoValida(s) {
+      return s is string
+        && s == s.trim()
+        && s.size() <= 160
+        && (s == '' || semInvisiveis(s));
+    }
+
+    function tamanhoValido(t, unico) {
+      return t is map
+        && t.keys().toSet() == ['id', 'nome', 'precoCentavos'].toSet()
+        && t.id is string
+        && t.id.matches('^[a-z0-9]{8}$')
+        && t.nome is string
+        && ((unico && t.nome == '')
+          || (t.nome == t.nome.trim()
+            && t.nome.size() >= 1
+            && t.nome.size() <= 20
+            && semInvisiveis(t.nome)))
+        && t.precoCentavos is int
+        && t.precoCentavos >= 1
+        && t.precoCentavos <= 100000;
+    }
+
+    function idsTamanhosUnicos(l) {
+      return (l.size() == 6 && [l[0].id, l[1].id, l[2].id, l[3].id, l[4].id, l[5].id].toSet().size() == 6)
+        || (l.size() == 5 && [l[0].id, l[1].id, l[2].id, l[3].id, l[4].id].toSet().size() == 5)
+        || (l.size() == 4 && [l[0].id, l[1].id, l[2].id, l[3].id].toSet().size() == 4)
+        || (l.size() == 3 && [l[0].id, l[1].id, l[2].id].toSet().size() == 3)
+        || (l.size() == 2 && l[0].id != l[1].id)
+        || l.size() == 1;
+    }
+
+    function tamanhosValidos(l) {
+      return l is list
+        && l.size() >= 1
+        && l.size() <= 6
+        && tamanhoValido(l[0], l.size() == 1)
+        && (l.size() < 2 || tamanhoValido(l[1], false))
+        && (l.size() < 3 || tamanhoValido(l[2], false))
+        && (l.size() < 4 || tamanhoValido(l[3], false))
+        && (l.size() < 5 || tamanhoValido(l[4], false))
+        && (l.size() < 6 || tamanhoValido(l[5], false))
+        && idsTamanhosUnicos(l);
+    }
+
+    function selosIdsValidos(l) {
+      return l is list
+        && l.size() <= 6
+        && l.toSet().size() == l.size()
+        && (l.size() == 0
+          || (l.join(',').matches('[A-Za-z0-9_-]{1,40}(,[A-Za-z0-9_-]{1,40})*')
+            && l.join(',').split(',') == l));
+    }
+
+    function catalogoValido(d) {
+      return d.keys().toSet() == ['versao', 'atualizadoEm', 'categorias', 'selos', 'produtos'].toSet()
+        && d.versao is int
+        && d.atualizadoEm == request.time
+        && d.categorias is list && d.categorias.size() <= 100
+        && d.selos is list && d.selos.size() <= 100
+        && d.produtos is list && d.produtos.size() <= 500;
+    }
+
+    function produtoValido(d) {
+      return d.keys().toSet() == ['nome', 'descricao', 'categoriaId', 'selosIds', 'tamanhos', 'ativo', 'ordem', 'criadoEm', 'atualizadoEm'].toSet()
+        && nomeProdutoValido(d.nome)
+        && descricaoValida(d.descricao)
+        && idRefValido(d.categoriaId)
+        && selosIdsValidos(d.selosIds)
+        && tamanhosValidos(d.tamanhos)
+        && d.ativo is bool
+        && d.ordem is int
+        && d.ordem >= 0
+        && d.ordem <= 9999;
+    }
+
+    match /admins/{uid} {
+      allow get: if ehDono(uid) || ehAdmin();
+      allow list: if ehAdmin();
+
+      allow create: if ehAdmin()
+        && request.auth.uid != uid
+        && exists(caminhoCliente(uid))
+        && request.resource.data.keys().hasOnly(['email', 'nome', 'criadoEm', 'criadoPor'])
+        && request.resource.data.keys().hasAll(['email', 'nome', 'criadoEm', 'criadoPor'])
+        && request.resource.data.criadoPor == request.auth.uid
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.email == get(caminhoCliente(uid)).data.email
+        && request.resource.data.nome == get(caminhoCliente(uid)).data.nome;
+
+      allow update, delete: if false;
+    }
+
+    match /clientes/{uid} {
+      allow get: if ehDono(uid) || ehAdmin();
+      allow list: if ehAdmin();
+
+      allow create: if ehDono(uid)
+        && request.resource.data.keys().hasOnly(['nome', 'whatsapp', 'email', 'criadoEm'])
+        && request.resource.data.keys().hasAll(['nome', 'whatsapp', 'email', 'criadoEm'])
+        && nomeValido(request.resource.data.nome)
+        && whatsappValido(request.resource.data.whatsapp)
+        && request.auth.token.email is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.criadoEm == request.time;
+
+      allow update: if ehDono(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'whatsapp', 'atualizadoEm'])
+        && request.resource.data.keys().hasOnly(['nome', 'whatsapp', 'email', 'criadoEm', 'atualizadoEm'])
+        && nomeValido(request.resource.data.nome)
+        && whatsappValido(request.resource.data.whatsapp)
+        && request.resource.data.atualizadoEm == request.time;
+
+      allow delete: if ehDono(uid);
+    }
+
+    match /categorias/{id} {
+      allow read: if ehAdmin();
+
+      allow create: if ehAdmin()
+        && categoriaValida(request.resource.data)
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.atualizadoEm == request.time;
+
+      allow update: if ehAdmin()
+        && categoriaValida(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'icone', 'ordem', 'ativa', 'atualizadoEm'])
+        && request.resource.data.atualizadoEm == request.time;
+
+      allow delete: if false;
+    }
+
+    match /selos/{id} {
+      allow read: if ehAdmin();
+
+      allow create: if ehAdmin()
+        && seloValido(request.resource.data)
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.atualizadoEm == request.time;
+
+      allow update: if ehAdmin()
+        && seloValido(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'icone', 'ordem', 'ativo', 'atualizadoEm'])
+        && request.resource.data.atualizadoEm == request.time;
+
+      allow delete: if false;
+    }
+
+    match /produtos/{id} {
+      allow read: if ehAdmin();
+
+      allow create: if ehAdmin()
+        && produtoValido(request.resource.data)
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.atualizadoEm == request.time
+        && exists(/databases/$(database)/documents/categorias/$(request.resource.data.categoriaId));
+
+      allow update: if ehAdmin()
+        && produtoValido(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'descricao', 'categoriaId', 'selosIds', 'tamanhos', 'ativo', 'ordem', 'atualizadoEm'])
+        && request.resource.data.atualizadoEm == request.time
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['categoriaId'])
+          || exists(/databases/$(database)/documents/categorias/$(request.resource.data.categoriaId)));
+
+      allow delete: if false;
+    }
+
+    match /publico/{doc} {
+      allow get: if doc == 'catalogo';
+      allow list: if false;
+      allow create: if doc == 'catalogo' && ehAdmin() && catalogoValido(request.resource.data) && request.resource.data.versao == 1;
+      allow update: if doc == 'catalogo' && ehAdmin() && catalogoValido(request.resource.data) && request.resource.data.versao == resource.data.versao + 1;
+      allow delete: if false;
+    }
+  }
+}
