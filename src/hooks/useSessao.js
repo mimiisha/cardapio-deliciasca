@@ -8,6 +8,7 @@ let snapshot = Object.freeze({
   uid: null,
   email: null,
   nome: null,
+  foto: null,
   emailVerificado: false,
   admin: null,
   adminFalhou: false,
@@ -50,7 +51,7 @@ function aoMudarUsuario(usuario) {
   if (!usuario) {
     geracao += 1
     adminConferido = null
-    publicar({ estado: 'anonimo', uid: null, email: null, nome: null, emailVerificado: false, admin: false, adminFalhou: false })
+    publicar({ estado: 'anonimo', uid: null, email: null, nome: null, foto: null, emailVerificado: false, admin: false, adminFalhou: false })
     return
   }
   const mesmoUsuario =
@@ -60,6 +61,7 @@ function aoMudarUsuario(usuario) {
     uid: usuario.uid,
     email: usuario.email,
     nome: usuario.displayName || null,
+    foto: usuario.photoURL || null,
     emailVerificado: usuario.emailVerified,
   }
   if (mesmoUsuario) {
@@ -82,7 +84,7 @@ export function iniciarSessao() {
     if (import.meta.env.DEV) console.error('[sessao] falha ao iniciar', erro)
     inicio = null
     geracao += 1
-    publicar({ estado: 'erro', uid: null, email: null, nome: null, emailVerificado: false, admin: false, adminFalhou: false })
+    publicar({ estado: 'erro', uid: null, email: null, nome: null, foto: null, emailVerificado: false, admin: false, adminFalhou: false })
   })
 }
 

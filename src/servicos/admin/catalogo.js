@@ -1,6 +1,7 @@
+import { iconeCategoriaValido } from '../../components/icones/categorias.js'
 import { iconeSeloGenerico, iconesSelo } from '../../components/icones/selos.js'
 import { carregarFirestore } from '../../lib/firebase.js'
-import { compararCategorias, iconeValido, invalidarCatalogoPublico } from '../publico/catalogo.js'
+import { compararCategorias, invalidarCatalogoPublico } from '../publico/catalogo.js'
 import { erroDoPainel, erroPainel } from './errosPainel.js'
 
 export const ORDEM_MAXIMA = 9999
@@ -23,7 +24,7 @@ export function resumirCategoria(id, dados) {
   return {
     id,
     nome,
-    icone: iconeValido(dados.icone),
+    icone: iconeCategoriaValido(dados.icone),
     ordem: ordemValida ? dados.ordem : ORDEM_MAXIMA,
     ativa: dados.ativa === true,
     valida: nome !== '' && ordemValida && typeof dados.ativa === 'boolean',

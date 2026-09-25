@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { IlustracaoCategoria } from '../../components/Categorias.jsx'
 import Icone from '../../components/admin/Icone.jsx'
+import { galeriaCategorias } from '../../components/icones/categorias.js'
 import { categoriasPadrao, definirCategoriaAtiva, importarCategoriasPadrao } from '../../servicos/admin/categorias.js'
 import { ehConflito } from '../../servicos/admin/errosPainel.js'
 import { ErroServico, mensagemGenerica } from '../../servicos/erros.js'
@@ -27,6 +28,7 @@ function ItemCategoria({ categoria, posicao, alternando, bloqueado, aoEditar, ao
       <IlustracaoCategoria
         icone={icone}
         posicao={ativa ? posicao : null}
+        galeria={galeriaCategorias}
         className="size-16 shrink-0 rounded-xl sm:size-20"
         classeIcone="size-8 sm:size-10"
       />

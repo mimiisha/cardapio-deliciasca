@@ -1,9 +1,10 @@
-import { iconeCategoriaGenerico, iconesCategoria } from '../../components/icones/categorias.js'
 import { chaveApi, projetoId } from '../../lib/firebase.js'
 
 const TEMPO_LIMITE = 6000
 
 const formatoId = /^[A-Za-z0-9_-]{1,40}$/
+
+const formatoIcone = /^[a-z0-9-]{1,40}$/
 
 const endereco = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projetoId)}/databases/(default)/documents/publico/catalogo?key=${encodeURIComponent(chaveApi)}`
 
@@ -11,8 +12,8 @@ export function idCategoriaValido(id) {
   return typeof id === 'string' && formatoId.test(id)
 }
 
-export function iconeValido(icone) {
-  return typeof icone === 'string' && Object.hasOwn(iconesCategoria, icone) ? icone : iconeCategoriaGenerico
+function chaveIcone(icone) {
+  return typeof icone === 'string' && formatoIcone.test(icone) ? icone : ''
 }
 
 export function compararCategorias(a, b) {
@@ -52,7 +53,7 @@ function converterCategoria(campos) {
   const id = textoDe(campos.id, 40)
   const nome = textoDe(campos.nome, 40)
   if (!idCategoriaValido(id) || !nome) return null
-  return { id, nome, icone: iconeValido(campos.icone?.stringValue) }
+  return { id, nome, icone: chaveIcone(campos.icone?.stringValue) }
 }
 
 export function categoriasDoCatalogo(campos) {

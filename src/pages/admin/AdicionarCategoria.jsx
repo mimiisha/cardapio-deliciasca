@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom'
 import { CartaoCategoria } from '../../components/Categorias.jsx'
 import CampoTexto from '../../components/CampoTexto.jsx'
 import SeletorIcone from '../../components/admin/SeletorIcone.jsx'
-import { iconeCategoriaGenerico, iconesCategoria } from '../../components/icones/categorias.js'
+import { galeriaCategorias, iconeCategoriaGenerico, iconesCategoria } from '../../components/icones/categorias.js'
 import { removerVazios, temCaractereInvisivel } from '../../components/validacao.js'
 import { useFormulario } from '../../hooks/useFormulario.js'
 import { chaveNome, criarCategoria, editarCategoria, normalizarNomeCategoria } from '../../servicos/admin/categorias.js'
@@ -109,6 +109,7 @@ function FormularioCategoria({ categoria, cardapio, posicao, oculta, campoRef, b
             nome={nomePrevia}
             icone={valores.icone || iconeCategoriaGenerico}
             posicao={posicao}
+            galeria={galeriaCategorias}
           />
         </div>
       </figure>

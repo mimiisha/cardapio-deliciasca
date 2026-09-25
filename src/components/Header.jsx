@@ -18,17 +18,19 @@ const classeDestaque =
 
 function LogoChef() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 48 48" className="size-11">
-      <circle cx="24" cy="24" r="23" className="fill-tomate stroke-papel" strokeWidth="2" />
-      <path d="M15 30v-4.5a6 6 0 0 1 2.5-11.3 7 7 0 0 1 13 0A6 6 0 0 1 33 25.5V30z" className="fill-papel" />
-      <rect x="15" y="31.5" width="18" height="5" rx="1.5" className="fill-papel" />
-      <path d="M21 24v6M27 24v6" className="stroke-tomate" strokeWidth="1.5" strokeLinecap="round" opacity="0.4" />
-    </svg>
+    <img
+      src="/logo-delicias.png"
+      alt=""
+      width="141"
+      height="160"
+      decoding="async"
+      className="h-12 w-auto sm:h-20"
+    />
   )
 }
 
 const classeLogo =
-  'flex min-h-11 min-w-11 items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta'
+  'flex min-h-11 min-w-11 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta'
 
 function Logo({ tituloRef, inicio }) {
   if (!inicio) {
@@ -63,7 +65,11 @@ function Header({ tituloRef, inicio = true }) {
             {links.map((link) => (
               <li key={link.rotulo}>
                 {link.destaque && logado ? (
-                  <MenuConta nome={sessao.nome} tituloRef={tituloRef} aoAvisar={setAviso} classeBotao={classeDestaque} />
+                  <MenuConta
+                    nome={sessao.nome}
+                    uid={sessao.uid}
+                    foto={sessao.foto}
+                    tituloRef={tituloRef} aoAvisar={setAviso} classeBotao={classeDestaque} />
                 ) : link.href.startsWith('/') ? (
                   <LinkRota
                     href={link.href}

@@ -2,6 +2,15 @@ import { useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { ErroServico, mensagemGenerica } from '../servicos/erros.js'
 
+export function aplicarSalvos(atuais, enviados, salvos) {
+  if (!salvos) return atuais
+  const proximos = { ...atuais }
+  for (const [nome, valor] of Object.entries(salvos)) {
+    if (atuais[nome] === enviados[nome]) proximos[nome] = valor
+  }
+  return proximos
+}
+
 export function useFormulario({ inicial, validar, limparAposEnvio, enviar, contar }) {
   const [valores, setValores] = useState(inicial)
   const [tentou, setTentou] = useState(false)
@@ -30,9 +39,15 @@ export function useFormulario({ inicial, validar, limparAposEnvio, enviar, conta
     setEnviando(true)
     setTentou(false)
     setAviso('')
+    const enviados = valores
     try {
-      const mensagem = await enviar(valores)
-      setAviso(mensagem ?? '')
+      const resultado = await enviar(enviados)
+      if (resultado !== null && typeof resultado === 'object') {
+        setAviso(resultado.mensagem ?? '')
+        setValores((atuais) => aplicarSalvos(atuais, enviados, resultado.valores))
+      } else {
+        setAviso(resultado ?? '')
+      }
     } catch (erro) {
       if (erro instanceof ErroServico) {
         setAviso(erro.message)
@@ -64,5 +79,5 @@ export function useFormulario({ inicial, validar, limparAposEnvio, enviar, conta
     enviarAoServidor()
   }
 
-  return { valores, erros, aviso, enviando, alterar, registrar, aoEnviar }
+  return { valores, erros, aviso, enviando, alterar, registrar, aoEnviar, definirValores: setValores }
 }

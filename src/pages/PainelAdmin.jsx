@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import LayoutAdmin from '../components/admin/LayoutAdmin.jsx'
 import { limparCardapio } from './admin/useCardapio.js'
 import Administradores from './admin/Administradores.jsx'
+import Agenda from './admin/Agenda.jsx'
 import Categorias from './admin/Categorias.jsx'
 import Clientes from './admin/Clientes.jsx'
 import PainelInicio from './admin/PainelInicio.jsx'
@@ -13,6 +14,7 @@ import { telasAdmin } from './admin/telas.js'
 
 function ConteudoTela({ tela, tituloRef }) {
   if (tela.id === 'inicio') return <PainelInicio tituloRef={tituloRef} />
+  if (tela.id === 'agenda') return <Agenda tituloRef={tituloRef} fonte="inativa" />
   if (tela.id === 'produtos') return <Produtos tituloRef={tituloRef} />
   if (tela.id === 'categorias') return <Categorias tituloRef={tituloRef} />
   if (tela.id === 'selos') return <Selos tituloRef={tituloRef} />

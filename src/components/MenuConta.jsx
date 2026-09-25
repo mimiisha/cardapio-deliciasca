@@ -1,4 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import Avatar from './Avatar.jsx'
+import { iniciais, lerAvatar } from './fotoAvatar.js'
 import LinkRota from './LinkRota.jsx'
 import { useRota } from '../hooks/useRota.js'
 import { sair } from '../servicos/auth.js'
@@ -19,7 +21,7 @@ function Seta({ aberto }) {
   )
 }
 
-function MenuConta({ nome, tituloRef, aoAvisar, classeBotao }) {
+function MenuConta({ nome, uid, foto, tituloRef, aoAvisar, classeBotao }) {
   const [aberto, setAberto] = useState(false)
   const [saindo, setSaindo] = useState(false)
   const emAndamento = useRef(false)
@@ -29,6 +31,7 @@ function MenuConta({ nome, tituloRef, aoAvisar, classeBotao }) {
   const caminho = useRota()
   const nomeCompleto = typeof nome === 'string' ? nome.trim() : ''
   const primeiroNome = nomeCompleto.split(/\s+/)[0] || 'Minha conta'
+  const comAvatar = lerAvatar(foto) !== null || iniciais(nomeCompleto) !== ''
   const rotulo = nomeCompleto ? `${nomeCompleto}, menu da conta` : 'Minha conta'
 
   useEffect(() => {
@@ -83,9 +86,13 @@ function MenuConta({ nome, tituloRef, aoAvisar, classeBotao }) {
         aria-expanded={aberto}
         aria-controls={idPainel}
         onClick={() => setAberto((valor) => !valor)}
-        className={`${classeBotao} gap-0.5 pr-1.5 sm:pr-4`}
+        className={`${classeBotao} pr-1.5 sm:pr-4 ${comAvatar ? 'gap-1.5 pl-1.5 sm:pl-2' : 'gap-0.5'}`}
       >
-        <span aria-hidden="true" className="max-w-10 truncate min-[360px]:max-w-20 sm:max-w-40">
+        <Avatar uid={uid} nome={nomeCompleto} foto={foto} tamanho={28} />
+        <span
+          aria-hidden="true"
+          className={`max-w-10 truncate min-[360px]:max-w-20 sm:max-w-40 ${comAvatar ? 'max-[359px]:hidden' : ''}`}
+        >
           {primeiroNome}
         </span>
         <span className="sr-only">{rotulo}</span>

@@ -39,6 +39,48 @@ service cloud.firestore {
       return /databases/$(database)/documents/clientes/$(uid);
     }
 
+    function textoObr(s, min, max) {
+      return s is string
+        && s == s.trim()
+        && s.size() >= min
+        && s.size() <= max
+        && semInvisiveis(s);
+    }
+
+    function textoOpc(s, max) {
+      return s is string
+        && s == s.trim()
+        && s.size() <= max
+        && semInvisiveis(s);
+    }
+
+    function camposEndereco(e) {
+      return textoOpc(e.apelido, 30)
+        && e.cep is string
+        && (e.cep == '' || e.cep.matches('^[0-9]{8}$'))
+        && textoObr(e.logradouro, 2, 100)
+        && textoObr(e.numero, 1, 10)
+        && textoOpc(e.complemento, 60)
+        && textoObr(e.bairro, 2, 60)
+        && textoOpc(e.cidade, 60)
+        && e.uf is string
+        && (e.uf == '' || e.uf.matches('^[A-Z]{2}$'))
+        && textoOpc(e.referencia, 120);
+    }
+
+    function enderecoValido(e) {
+      return e is map
+        && e.keys().toSet() == ['apelido', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'referencia'].toSet()
+        && camposEndereco(e);
+    }
+
+    function padraoCoerente(d) {
+      return ('enderecoPadraoId' in d) == ('enderecoPadrao' in d)
+        && (!('enderecoPadraoId' in d)
+          || (d.enderecoPadraoId in ['1', '2', '3', '4', '5']
+            && enderecoValido(d.enderecoPadrao)));
+    }
+
     function nomeCategoriaValido(n) {
       return n is string
         && n == n.trim()
@@ -207,10 +249,30 @@ service cloud.firestore {
         && request.resource.data.criadoEm == request.time;
 
       allow update: if ehDono(uid)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'whatsapp', 'atualizadoEm'])
-        && request.resource.data.keys().hasOnly(['nome', 'whatsapp', 'email', 'criadoEm', 'atualizadoEm'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'whatsapp', 'atualizadoEm', 'enderecoPadraoId', 'enderecoPadrao'])
+        && request.resource.data.keys().hasOnly(['nome', 'whatsapp', 'email', 'criadoEm', 'atualizadoEm', 'enderecoPadraoId', 'enderecoPadrao'])
         && nomeValido(request.resource.data.nome)
         && whatsappValido(request.resource.data.whatsapp)
+        && request.resource.data.atualizadoEm == request.time
+        && padraoCoerente(request.resource.data);
+
+      allow delete: if ehDono(uid);
+    }
+
+    match /clientes/{uid}/enderecos/{vaga} {
+      allow read: if ehDono(uid);
+
+      allow create: if ehDono(uid)
+        && vaga in ['1', '2', '3', '4', '5']
+        && request.resource.data.keys().toSet() == ['apelido', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'referencia', 'criadoEm', 'atualizadoEm'].toSet()
+        && camposEndereco(request.resource.data)
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.atualizadoEm == request.time;
+
+      allow update: if ehDono(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['apelido', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'referencia', 'atualizadoEm'])
+        && request.resource.data.keys().toSet() == ['apelido', 'cep', 'logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'referencia', 'criadoEm', 'atualizadoEm'].toSet()
+        && camposEndereco(request.resource.data)
         && request.resource.data.atualizadoEm == request.time;
 
       allow delete: if ehDono(uid);

@@ -18,6 +18,18 @@ export async function criarPerfil(uid, { nome, whatsapp, email }) {
   }
 }
 
+export const mensagemSemCadastro = 'Não encontramos seu cadastro de cliente.'
+
+export async function atualizarPerfil(uid, { nome, whatsapp }) {
+  try {
+    const { db, sdk } = await carregarFirestore()
+    await sdk.updateDoc(sdk.doc(db, 'clientes', uid), { nome, whatsapp, atualizadoEm: sdk.serverTimestamp() })
+  } catch (erro) {
+    if (erro?.code === 'not-found') throw new ErroServico('sem-cadastro', mensagemSemCadastro)
+    throw traduzirErroFirebase(erro, 'atualizar-perfil')
+  }
+}
+
 export async function lerPerfil(uid) {
   try {
     const { db, sdk } = await carregarFirestore()

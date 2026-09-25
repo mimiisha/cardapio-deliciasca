@@ -48,6 +48,17 @@ export function temCaractereInvisivel(texto) {
   return caractereInvisivel.test(texto.replaceAll('\u200D', ''))
 }
 
+export const tamanhoMaximoNome = 100
+
+export function erroNome(nome) {
+  const limpo = nome.trim()
+  if (limpo === '') return 'Informe seu nome.'
+  if (temCaractereInvisivel(limpo)) return 'O nome contém caracteres inválidos.'
+  if (comprimento(limpo) < 2) return 'Informe seu nome completo.'
+  if (limpo.length > tamanhoMaximoNome) return `Use no máximo ${tamanhoMaximoNome} caracteres no nome.`
+  return undefined
+}
+
 export function erroEmail(email) {
   if (email.trim() === '') return 'Informe o e-mail.'
   if (!formatoEmail.test(email.trim())) return 'Informe um e-mail válido, como nome@exemplo.com.'

@@ -1,0 +1,19 @@
+Créditos dos avatares
+
+Rostos (Fluent Emoji Flat, Microsoft Corporation, licença MIT; texto completo em LICENSE-fluent-emoji.txt):
+pessoa-neutra, pessoa-pele-clara, pessoa-pele-media, pessoa-pele-escura,
+cacheado-pele-media-clara, cacheado-pele-media-escura, cacheado-pele-escura,
+ruivo-pele-clara, ruivo-pele-media, barba-pele-clara, barba-pele-media, barba-pele-escura,
+careca-pele-clara, careca-pele-media-escura, oculos-pele-media, oculos-pele-escura,
+grisalho-pele-media, grisalho-pele-escura, oculos-grisalho-pele-media,
+pessoa-idosa-pele-media-clara, pessoa-idosa-pele-escura, lenco-pele-media,
+touca-chef-pele-clara, touca-chef-pele-media-escura, touca-chef-pele-escura,
+cabelo-longo-pele-clara, cabelo-longo-pele-media, cabelo-longo-pele-escura,
+longo-ruivo-pele-clara, longo-loiro-pele-media-clara, longo-cacheado-pele-escura
+
+Modificações feitas pelo projeto Delícias da Cá:
+- Todos os 31 rostos: coordenadas simplificadas (1 casa decimal; 2 em detalhes pequenos), formas vizinhas da mesma cor unidas, atributos sem efeito removidos. Cores e desenho mantidos.
+- oculos-pele-media, oculos-pele-escura, oculos-grisalho-pele-media: óculos adicionados.
+- lenco-pele-media, touca-chef-pele-clara, touca-chef-pele-media-escura, touca-chef-pele-escura: viewBox recortado para enquadrar cabeça e acessório.
+
+Comida e demais avatares (bolo, cachorro, cafe, cenoura, chef, colher, frango, gato, girassol, maca, marmita, panela, pao, peixe, pimenta, torta): criação própria do projeto Delícias da Cá.

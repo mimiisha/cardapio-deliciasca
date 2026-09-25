@@ -8,24 +8,16 @@ import {
   avaliarSenha,
   comprimento,
   erroEmail,
+  erroNome,
   erroWhatsapp,
   removerVazios,
   senhaComum,
   tamanhoMinimoSenha,
-  temCaractereInvisivel,
 } from '../components/validacao.js'
 import { useFormulario } from '../hooks/useFormulario.js'
 import { cadastrarCliente } from '../servicos/login.js'
 
 const avisoCadastro = 'Enviamos um link de confirmação para o seu e-mail. Confira também a caixa de spam.'
-
-function erroNome(nome) {
-  const limpo = nome.trim()
-  if (limpo === '') return 'Informe seu nome.'
-  if (temCaractereInvisivel(limpo)) return 'O nome contém caracteres inválidos.'
-  if (comprimento(limpo) < 2) return 'Informe seu nome completo.'
-  return undefined
-}
 
 async function enviar(valores) {
   await cadastrarCliente(valores)

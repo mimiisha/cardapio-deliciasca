@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { compararPorNome, LIMITE_CLIENTES, listarClientes } from '../../servicos/admin/clientes.js'
 import { ErroServico, mensagemGenerica } from '../../servicos/erros.js'
+import LinkWhatsapp from '../../components/admin/LinkWhatsapp.jsx'
 import CartaoTela from './CartaoTela.jsx'
 
 const formatoData = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -47,20 +48,11 @@ function filtrar(clientes, termo) {
   )
 }
 
-function formatarWhatsapp(e164) {
-  const digitos = soDigitos(e164)
-  if (!digitos.startsWith('55')) return e164
-  const nacional = digitos.slice(2)
-  const ddd = nacional.slice(0, 2)
-  const numero = nacional.slice(2)
-  if (numero.length === 9) return `(${ddd}) ${numero.slice(0, 5)}-${numero.slice(5)}`
-  if (numero.length === 8) return `(${ddd}) ${numero.slice(0, 4)}-${numero.slice(4)}`
-  return e164
-}
-
-function formatarEndereco({ logradouro, numero, complemento, bairro }) {
+function formatarEndereco({ logradouro, numero, complemento, bairro, cidade, uf, cep }) {
   const linha = complemento ? `${logradouro}, ${numero}, ${complemento}` : `${logradouro}, ${numero}`
-  return `${linha} — ${bairro}`
+  const cidadeUf = [cidade, uf].filter(Boolean).join('/')
+  const local = cidadeUf ? `${linha} — ${bairro} — ${cidadeUf}` : `${linha} — ${bairro}`
+  return cep ? `${local} — CEP ${cep.slice(0, 5)}-${cep.slice(5)}` : local
 }
 
 function textoPedidos(total) {
@@ -74,21 +66,6 @@ function textoContador(total) {
 
 function Data({ valor }) {
   return <time dateTime={valor.toISOString()}>{formatoData.format(valor)}</time>
-}
-
-function LinkWhatsapp({ whatsapp, nome }) {
-  return (
-    <a
-      href={`https://wa.me/${soDigitos(whatsapp)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`-mx-1 inline-flex min-h-11 items-center rounded-lg px-1 text-base font-semibold text-tomate-escuro underline decoration-2 underline-offset-4 hover:text-tinta ${classeFoco}`}
-    >
-      <span className="sr-only">Conversar com {nome || 'cliente sem nome'} no WhatsApp: </span>
-      {formatarWhatsapp(whatsapp)}
-      <span className="sr-only"> (abre em nova aba)</span>
-    </a>
-  )
 }
 
 function ItemCliente({ cliente }) {

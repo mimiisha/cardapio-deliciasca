@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { iconeValido, lerCategoriasPublicas } from '../servicos/publico/catalogo.js'
-import { iconesCategoria } from './icones/categorias.js'
+import { lerCategoriasPublicas } from '../servicos/publico/catalogo.js'
 import LinkRota from './LinkRota.jsx'
 
 const tons = {
@@ -11,22 +10,46 @@ const tons = {
 
 const QUANTIDADE_ESQUELETOS = 6
 
-export function IlustracaoCategoria({ icone, posicao, className = '', classeIcone = '' }) {
+let promessaGaleria = null
+
+function carregarGaleria() {
+  if (!promessaGaleria) {
+    promessaGaleria = import('./icones/categorias.js').then(
+      (modulo) => modulo.galeriaCategorias,
+      (erro) => {
+        if (import.meta.env.DEV) console.warn('[categorias] falha ao carregar os ícones', erro)
+        promessaGaleria = null
+        return null
+      },
+    )
+  }
+  return promessaGaleria
+}
+
+function caminhoDoIcone(galeria, icone) {
+  if (!galeria) return null
+  return galeria.iconesCategoria[galeria.iconeCategoriaValido(icone)].d
+}
+
+export function IlustracaoCategoria({ icone, posicao, galeria, className = '', classeIcone = '' }) {
+  const caminho = caminhoDoIcone(galeria, icone)
   const tom = posicao === null ? 'neutro' : posicao % 2 === 0 ? 'quente' : 'manteiga'
   return (
     <div aria-hidden="true" className={`relative grid place-items-center overflow-hidden ${tons[tom]} ${className}`}>
       <span className="absolute inset-0 bg-bolinhas" />
-      <svg
-        viewBox="0 0 24 24"
-        className={`relative ${classeIcone}`}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d={iconesCategoria[iconeValido(icone)].d} />
-      </svg>
+      {caminho && (
+        <svg
+          viewBox="0 0 24 24"
+          className={`relative ${classeIcone}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d={caminho} />
+        </svg>
+      )}
     </div>
   )
 }
@@ -43,13 +66,14 @@ const classeMovimento =
 const classeLinkCartao =
   'w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta'
 
-export function CartaoCategoria({ nome, icone, posicao, href, elemento: Elemento = 'li', interativo = true }) {
+export function CartaoCategoria({ nome, icone, posicao, galeria, href, elemento: Elemento = 'li', interativo = true }) {
   const movimento = interativo ? classeMovimento : ''
   const conteudo = (
     <>
       <IlustracaoCategoria
         icone={icone}
         posicao={posicao}
+        galeria={galeria}
         className="aspect-[4/3]"
         classeIcone="size-8 motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-110 sm:size-12"
       />
@@ -74,7 +98,7 @@ function Esqueleto({ indice }) {
       <div className="aspect-[4/3] bg-borda/60 motion-safe:animate-pulse" />
       <span className={classeRotulo}>
         {indice === 0 ? <span className="sr-only">Carregando categorias…</span> : null}
-        <span aria-hidden="true">{' '}</span>
+        <span aria-hidden="true">{' '}</span>
       </span>
     </li>
   )
@@ -83,7 +107,7 @@ function Esqueleto({ indice }) {
 const classeBotao =
   'mt-3 inline-flex min-h-11 items-center justify-center rounded-full border-2 border-tinta px-5 text-base font-semibold text-tinta hover:bg-tinta/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tinta'
 
-function ListaCategorias({ estado, aoTentarDeNovo, alertar }) {
+function ListaCategorias({ estado, galeria, aoTentarDeNovo, alertar }) {
   const classeLista = 'mt-6 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-6'
   if (estado === null) {
     return (
@@ -112,7 +136,7 @@ function ListaCategorias({ estado, aoTentarDeNovo, alertar }) {
   return (
     <ul className={classeLista}>
       {estado.categorias.map(({ id, nome, icone }, indice) => (
-        <CartaoCategoria key={id} nome={nome} icone={icone} posicao={indice} href={`/cardapio/${id}`} />
+        <CartaoCategoria key={id} nome={nome} icone={icone} posicao={indice} galeria={galeria} href={`/cardapio/${id}`} />
       ))}
     </ul>
   )
@@ -120,13 +144,13 @@ function ListaCategorias({ estado, aoTentarDeNovo, alertar }) {
 
 function Categorias() {
   const [tentativa, setTentativa] = useState(0)
-  const [resultado, setResultado] = useState({ tentativa: -1, estado: null })
+  const [resultado, setResultado] = useState({ tentativa: -1, estado: null, galeria: null })
   const tituloRef = useRef(null)
 
   useEffect(() => {
     let ativo = true
-    lerCategoriasPublicas().then((estado) => {
-      if (ativo) setResultado({ tentativa, estado })
+    Promise.all([lerCategoriasPublicas(), carregarGaleria()]).then(([estado, galeria]) => {
+      if (ativo) setResultado({ tentativa, estado, galeria })
     })
     return () => {
       ativo = false
@@ -148,7 +172,7 @@ function Categorias() {
           de Produtos
         </span>
       </h2>
-      <ListaCategorias estado={estado} aoTentarDeNovo={tentarDeNovo} alertar={tentativa > 0} />
+      <ListaCategorias estado={estado} galeria={resultado.galeria} aoTentarDeNovo={tentarDeNovo} alertar={tentativa > 0} />
     </section>
   )
 }

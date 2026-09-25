@@ -46,6 +46,12 @@ function enderecoOpcional(valor) {
   const referencia = textoOpcional(valor.referencia)
   if (complemento) endereco.complemento = complemento
   if (referencia) endereco.referencia = referencia
+  const cidade = textoOpcional(valor.cidade)
+  const uf = textoOpcional(valor.uf)
+  const cep = textoOpcional(valor.cep)
+  if (cidade) endereco.cidade = cidade
+  if (uf && /^[A-Z]{2}$/.test(uf)) endereco.uf = uf
+  if (cep && /^[0-9]{8}$/.test(cep)) endereco.cep = cep
   return endereco
 }
 

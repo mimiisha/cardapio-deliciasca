@@ -46,3 +46,9 @@ export const iconesCategoria = Object.freeze({
 })
 
 export const iconeCategoriaGenerico = 'prato'
+
+export function iconeCategoriaValido(icone) {
+  return typeof icone === 'string' && Object.hasOwn(iconesCategoria, icone) ? icone : iconeCategoriaGenerico
+}
+
+export const galeriaCategorias = Object.freeze({ iconesCategoria, iconeCategoriaValido })
